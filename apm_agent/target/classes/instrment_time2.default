@@ -1,0 +1,21 @@
+prometheus.namespace=apm_monitor
+prometheus.counter=default|appName|class,method,returnType|The total number of requests served
+prometheus.error=default|appName|msg,class,method|The total number of sys error
+prometheus.time=default|appName|class,method,returnType|times of one request 
+#全局-1
+type.matcher_named=ch.qos.logback.classic.Logger,ch.qos.logback.classic.Logg
+#全局-2
+include.type.matcher_nameContains=DataSource
+include.type.matcher_named=com.github
+#局部
+extra.include.type.matcher_named=com.jingoal.dc
+extra.exclude.type.matcher_named=com.jingoal.dc.html
+
+#classloader 可以多个
+classloader.not=org.stagemonitor.core.Stagemonitor
+
+extra.method.matcher.named=abc,efg,ofk
+extra.method.matcher._and_.decorated=public
+extra.method.matcher._and_.arguments=1
+extra.method.matcher._and_.reutrnClass=com.github
+

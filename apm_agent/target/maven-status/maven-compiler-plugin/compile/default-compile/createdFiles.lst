@@ -1,0 +1,4 @@
+com/github/apm/AttachVirtualMachine.class
+com/github/apm/agent/AgentLauncher.class
+com/github/apm/agent/LoadJarUtil.class
+com/github/apm/agent/AgentClassLoader.class
