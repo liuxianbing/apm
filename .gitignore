@@ -1,0 +1,13 @@
+.*
+*~
+*.class
+!.gitignore
+*/target
+*/.settings
+*/.DS_Store
+*/.classpath
+*/.project
+logs/
+/build/
+datasource-config.xml
+src/test/
