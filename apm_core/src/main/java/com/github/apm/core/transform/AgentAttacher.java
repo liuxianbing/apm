@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.github.apm.core.ApmMonitor;
 import com.github.apm.core.configuration.ApmConfiguration;
 import com.github.apm.core.dispatcher.Dispatcher;
+import com.github.apm.core.test.LoggingAdvice;
 import com.github.apm.core.util.ClassUtils;
 import com.github.apm.core.util.PropertiesUtil;
 
@@ -35,6 +36,7 @@ import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.agent.builder.AgentBuilder.Ignored;
+import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.DynamicType.Builder;
@@ -172,6 +174,7 @@ public class AgentAttacher {
 
   private static ClassFileTransformer initByteBuddyClassFileTransformer(
       AutoEvictingCachingBinaryLocator binaryLocator) {
+    System.out.println(ApmMonitor.class.getClassLoader() + "***---");
     AgentBuilder agentBuilder = createAgentBuilder(binaryLocator);
     for (ApmMonitorByteBuddyTransformer transformer : getApmMonitorByteBuddyTransformers()) {
       if (null == Dispatcher.get(transformer.getClass().getName() + "_Transformers")) {
@@ -215,7 +218,8 @@ public class AgentAttacher {
           @Override
           public void onTransformation(TypeDescription arg0, ClassLoader arg1, JavaModule arg2,
               DynamicType arg3) {
-            System.out.println("onTransformation" + arg0.getName());
+            System.out.println(arg1 + "onTransformation" + arg0.getName());
+            System.out.println(Thread.currentThread().getContextClassLoader() + "%%%");
           }
         }).ignore(any(), timed("classloader", "bootstrap", isBootstrapClassLoader()))
         .or(any(), timed("classloader", "reflection", isReflectionClassLoader()))
@@ -223,22 +227,23 @@ public class AgentAttacher {
             timed("classloader", "apm-call-site",
                 classLoaderWithName("org.codehaus.groovy.runtime.callsite.CallSiteClassLoader")))
         .or(any(), new IsIgnoredClassLoaderElementMatcher())
-        // .or(timed("type", "global-exclude",
-        // nameStartsWith("java").or(nameStartsWith("com.sun.")).or(nameStartsWith("sun."))
-        // .or(nameStartsWith("jdk.")).or(nameStartsWith("org.aspectj."))
-        // .or(nameStartsWith("org.groovy.")).or(nameStartsWith("com.p6spy."))
-        // .or(nameStartsWith("net.bytebuddy."))
-        // .or(nameStartsWith("org.slf4j.").and(not(nameStartsWith("org.slf4j.impl."))))
-        // .or(nameContains("javassist")).or(nameContains(".asm."))
-        // .or(nameStartsWith("com.github.apm")
-        // .and(not(nameContains("Test").or(nameContains("benchmark")))))))
-        .disableClassFormatChanges().type(ElementMatchers.nameStartsWith("com.jingoal.util"))
+        .or(timed("type", "global-exclude",
+            nameStartsWith("java").or(nameStartsWith("com.sun.")).or(nameStartsWith("sun."))
+                .or(nameStartsWith("jdk.")).or(nameStartsWith("org.aspectj."))
+                .or(nameStartsWith("org.groovy.")).or(nameStartsWith("com.p6spy."))
+                .or(nameStartsWith("net.bytebuddy."))
+                .or(nameStartsWith("org.slf4j.").and(not(nameStartsWith("org.slf4j.impl."))))
+                .or(nameContains("javassist")).or(nameContains(".asm."))
+                .or(nameStartsWith("com.github.apm")
+                    .and(not(nameContains("Test").or(nameContains("benchmark")))))))
+        .disableClassFormatChanges()
+        .type(ElementMatchers.nameStartsWith("com.jingoal.dc.koala.web.controller"))
         .transform(new AgentBuilder.Transformer() {
           @Override
           public Builder<?> transform(Builder<?> builder, TypeDescription typeDescription,
               ClassLoader arg2) {
             try {
-              // return builder.visit(Advice.to(LoggingAdvice.class).on(nameStartsWith("test")));
+              return builder.visit(Advice.to(LoggingAdvice.class).on(nameStartsWith("do")));
             } catch (Exception e) {
               e.printStackTrace();
             }
@@ -252,7 +257,6 @@ public class AgentAttacher {
         new ByteBuddy().with(TypeValidation.of(ApmConfiguration.getInstance().debug));
     // .with(MethodGraph.Empty.INSTANCE);
 
-    // AgentBuilder defaultBuilder
     Ignored ignored = new AgentBuilder.Default(byteBuddy)
         .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION).with(getListener())
         .with(binaryLocator)

@@ -11,11 +11,13 @@ public class AttachVirtualMachine {
         AttachVirtualMachine.class.getProtectionDomain().getCodeSource().getLocation().getFile();
     System.out.println(files + "---");
     String processId = args[0];
-    String path = System.getProperty("user.dir");
-    System.out.println(path + "&&&");
-    if (path.endsWith("/bin")) {
-      path = path.replace("/bin", "");
-    }
+    String path = files.substring(0, files.lastIndexOf("/"));
+    path = path.substring(0, path.lastIndexOf("/"));
+    // String path = System.getProperty("user.dir");
+    System.out.println(path + "--path&&&");
+    // if (path.endsWith("/bin")) {
+    // path = path.replace("/bin", "");
+    // }
     String libPath = path + File.separator + "agent" + File.separator;
     String agentJar = "";
     String param = args.length >= 3 ? args[2] : "-path:" + path + ";";

@@ -78,6 +78,10 @@ public class PrometheusMetricsModule {
     return dest;
   }
 
+  public static void calLate(long spendTime, String[] res) {
+    histogram.labels(res).observe(spendTime);
+  }
+
   /**
    * 计算耗时
    */

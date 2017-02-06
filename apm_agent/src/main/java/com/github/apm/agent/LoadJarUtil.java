@@ -35,6 +35,7 @@ public class LoadJarUtil {
     if ((JAR.get(path) != null && JAR.get(path) < lastModify) || JAR.get(path) == null) {// 已经加载过
                                                                                          // jar包有更新
       try {
+        // inst.appendToSystemClassLoaderSearch(new JarFile(path));
         inst.appendToSystemClassLoaderSearch(new JarFile(path));
       } catch (IOException e) {
         e.printStackTrace();

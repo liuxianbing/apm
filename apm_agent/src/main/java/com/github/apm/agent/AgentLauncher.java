@@ -12,11 +12,25 @@ import java.lang.instrument.Instrumentation;
 public class AgentLauncher {
 
   public static void premain(String args, Instrumentation inst) {
-    main(args, inst);
+    new Thread(new InnerThread(args, inst)).start();
   }
 
   public static void agentmain(String args, Instrumentation inst) {
     main(args, inst);
+  }
+
+  static class InnerThread implements Runnable {
+    Instrumentation inst;
+    String args;
+
+    InnerThread(String args, Instrumentation inst) {
+      this.inst = inst;
+      this.args = args;
+    }
+
+    public void run() {
+      main(args, inst);
+    }
   }
 
 
@@ -27,7 +41,7 @@ public class AgentLauncher {
       // 分别是Agent的JAR包路径和期望传递到服务端的参数 /home/dc/log
       String path = System.getProperty("user.dir");
       System.out.println(path + "  args: " + args);
-      if (path.endsWith("/bin")) {
+      if (path != null && path.endsWith("/bin")) {
         path = path.replace("/bin", "");
       }
       // inst.appendToBootstrapClassLoaderSearch(new JarFile(
@@ -35,19 +49,19 @@ public class AgentLauncher {
       String configLocation = "";
       String startClass = "";
       boolean sysjar = false;
-      System.out.println("######2233" + args);
+      int sleep = -1;
+      System.out.println(currentLoader + "######args is:" + args);
       if (args != null) {
-        System.out.println("######22" + args);
         String[] array = args.trim().split(";");
         for (String param : array) {
           if (param.startsWith("-path:")) {
             path = param.substring(6);
-            System.out.println("######" + path);
+            System.out.println("agent path is:" + path);
           }
         }
         for (String param : array) {
           if (param.startsWith("-conf:")) {// 配置文件
-            param = param.substring(7);
+            param = param.substring(6);
             String absouthPath = param.startsWith("/") ? "" : path + File.separator;
             configLocation = absouthPath + param;
           } else if (param.startsWith("-sysjar:")) {// 第三方jar
@@ -64,6 +78,9 @@ public class AgentLauncher {
               param = "com.github.apm.core." + param;
             }
             startClass = param;
+          } else if (param.startsWith("-sleep:")) {// tomcat 启动是 preagent sleep一段时间 等待webapp加载成功
+            param = param.substring(7);
+            sleep = Integer.parseInt(param);
           }
         }
       }
@@ -78,7 +95,9 @@ public class AgentLauncher {
         System.out.println("jar file path:" + path + File.separator + "lib");
         LoadJarUtil.loadJar(path + File.separator + "lib" + File.separator, inst);
       }
-
+      if (sleep > -1) {
+        Thread.currentThread().sleep(sleep);
+      }
       currentLoader.loadClass(startClass)
           .getMethod("outerInit", String.class, Instrumentation.class)
           .invoke(null, configLocation, inst);// 启动监听器
@@ -86,4 +105,5 @@ public class AgentLauncher {
       e.printStackTrace();
     }
   }
+
 }

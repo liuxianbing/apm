@@ -7,12 +7,20 @@ public class ApmConfiguration {
 
   private ApmConfiguration() {}
 
-  private static ApmConfiguration apmConfig;
+  private static ApmConfiguration apmConfig = null;
 
-  public static synchronized ApmConfiguration getInstance() {
-    if (null == apmConfig) {
-      apmConfig = new ApmConfiguration();
+  private static final Object monitor = new Object();
+  static {
+    if (apmConfig == null) {
+      synchronized (monitor) {
+        if (apmConfig == null) {
+          apmConfig = new ApmConfiguration();
+        }
+      }
     }
+  }
+
+  public static ApmConfiguration getInstance() {
     return apmConfig;
   }
 
@@ -27,7 +35,7 @@ public class ApmConfiguration {
   public String excludedInstrumenter = "";// apm.instrument.excludedInstrumenter
   public String exportGeneratedClassesWithName = "";// apm.instrument.exportGeneratedClassesWithName
 
-  public int webServerPort = 9898;
+  public int webServerPort = -1;
   public String webPath;
   public String propertiesPath = "";
   public String instrmentTimeProperties = "";
@@ -38,7 +46,7 @@ public class ApmConfiguration {
   public String monitorThreads = "";
 
   public String slowTimeFilePath = "";
-
+  public volatile int slowTime = -1;
 
 
   public void initConfig() {
@@ -51,7 +59,7 @@ public class ApmConfiguration {
     active = Boolean.parseBoolean(getByKey("apm.monitor.active", "true"));
     runtimeAttach = Boolean.parseBoolean(getByKey("apm..instrument.runtimeAttach", "true"));
 
-    webServerPort = Integer.parseInt(getByKey("apm.webServerPort", "9898"));
+    webServerPort = Integer.parseInt(getByKey("apm.webServerPort", "-1"));
     webPath = getByKey("apm.webServer.path", "/prometheus");
     instrmentTimeProperties = getByKey("apm.instrument.instrmentTimeProperties");
 
@@ -60,6 +68,7 @@ public class ApmConfiguration {
         getByKey("apm.jvmPauseFilePath", System.getProperty("user.dir") + "/jvm_pause.log");
     jvmPauseWarn = Integer.parseInt(getByKey("apm.jvmPauseWarn", "10000"));
     jvmPauseInfo = Integer.parseInt(getByKey("apm.jvmPauseInfo", "1000"));
+    slowTime = Integer.parseInt(getByKey("instrment.time.slow", "-1"));
     slowTimeFilePath =
         getByKey("apm.slowTimeFilePath", System.getProperty("user.dir") + "/slow_time.log");
 

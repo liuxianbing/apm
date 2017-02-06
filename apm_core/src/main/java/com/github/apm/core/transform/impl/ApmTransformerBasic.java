@@ -17,7 +17,6 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 import static net.bytebuddy.matcher.ElementMatchers.returns;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,6 +24,8 @@ import java.util.Map.Entry;
 import com.github.apm.core.configuration.ApmConfiguration;
 import com.github.apm.core.transform.ApmMonitorByteBuddyTransformer;
 import com.github.apm.core.util.ClassUtils;
+import com.github.apm.core.util.DateUtils;
+import com.github.apm.core.util.FileWriterAsync;
 import com.github.apm.core.util.NumberUtil;
 import com.github.apm.core.util.PropertiesUtil;
 import com.github.apm.core.util.PropertyFileConfigurationSource;
@@ -34,13 +35,29 @@ import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
 public class ApmTransformerBasic extends ApmMonitorByteBuddyTransformer {
-
-  public Map<String, String> properties = new HashMap<>();
+  public static volatile int slowTime = -1;
+  public Map<String, String> properties = ApmConfiguration.getInstance().propertiesMap;
 
   public ApmTransformerBasic() {
-
+    String slow = properties.get("instrment.time.slow");
+    if (null != slow) {
+      slowTime = Integer.parseInt(slow);
+    }
   }
 
+  public static void writeSlowTime(String classType, String methodName, String signature,
+      String returnVal, long spendTime) {
+    StringBuffer sb = new StringBuffer(DateUtils.getDate());
+    sb.append(classType + "-");
+    sb.append(methodName + "-");
+    sb.append(signature + "-");
+    sb.append("\n" + returnVal);
+    sb.append(DateUtils.getDate());
+    sb.append(" spend Time:" + spendTime);
+    FileWriterAsync.produce(FileWriterAsync.SLOW_TIME, sb.toString());
+  }
+
+  @Deprecated
   protected void initConfigure(String path) {
     if (null != path && path.trim().length() > 0) {
       PropertyFileConfigurationSource pfc = new PropertyFileConfigurationSource(path);

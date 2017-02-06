@@ -8,10 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.github.apm.core.configuration.ApmConfiguration;
 import com.github.apm.core.prometheus.PrometheusMetricsModule;
-import com.github.apm.core.util.DateUtils;
-import com.github.apm.core.util.FileWriterAsync;
 
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.annotation.AnnotationDescription.Loadable;
@@ -29,14 +26,8 @@ import net.bytebuddy.matcher.ElementMatcher;
  */
 public class DefaultApmTransformer extends ApmTransformerBasic {
 
-  public static volatile int slowTime = -1;
-
   public DefaultApmTransformer() {
-    initConfigure(ApmConfiguration.getInstance().instrmentTimeProperties);
-    String slow = properties.get("instrment.time.slow");
-    if (null != slow) {
-      slowTime = Integer.parseInt(slow);
-    }
+    super();
   }
 
   @Advice.OnMethodEnter
@@ -50,6 +41,7 @@ public class DefaultApmTransformer extends ApmTransformerBasic {
       @Advice.Enter long startTime,
       @Advice.Return(typing = Assigner.Typing.DYNAMIC) Object returnObj) {
     long spendTime = System.currentTimeMillis() - startTime;
+    System.out.println(classType + "-" + methodName + "***");
     PrometheusMetricsModule.calLate(spendTime, classType, methodName, signature);
     if (null != t) {
       PrometheusMetricsModule.errorCounter(classType, methodName, signature, t);
@@ -58,19 +50,6 @@ public class DefaultApmTransformer extends ApmTransformerBasic {
       writeSlowTime(classType, methodName, signature, returnObj.toString(), spendTime);
     }
   }
-
-  private static void writeSlowTime(String classType, String methodName, String signature,
-      String returnVal, long spendTime) {
-    StringBuffer sb = new StringBuffer(DateUtils.getDate());
-    sb.append(classType + "-");
-    sb.append(methodName + "-");
-    sb.append(signature + "-");
-    sb.append("\n" + returnVal);
-    sb.append(DateUtils.getDate());
-    sb.append(" spend Time:" + spendTime);
-    FileWriterAsync.produce(FileWriterAsync.SLOW_TIME, sb.toString());
-  }
-
 
 
   @Override
@@ -152,17 +131,6 @@ public class DefaultApmTransformer extends ApmTransformerBasic {
       List<String> obj = new ArrayList<String>(4);
       obj.add(className);
       obj.add(returnType);
-      // StringBuffer sb = new StringBuffer();
-      // sb.append(className);
-      // sb.append("|");
-      // sb.append(instrumentedMethod.getName());
-      // sb.append("|");
-      // sb.append(returnType);
-      // sb.append("|");
-      // sb.append(getSignature(instrumentedMethod));
-      // return sb.toString();
-      // return String.format("%s|%s|%s|%s", className, instrumentedMethod.getName(), returnType,
-      // getSignature(instrumentedMethod));
       return obj;
 
     }

@@ -120,8 +120,10 @@ public class ApmMonitor {
 
   public static synchronized void startWebServer() {
     if (!initWeb) {
-      new Thread(new ApmHTTPServer(ApmConfiguration.getInstance().webServerPort,
-          ApmConfiguration.getInstance().webPath)).start();
+      if (ApmConfiguration.getInstance().webServerPort != -1) {
+        new Thread(new ApmHTTPServer(ApmConfiguration.getInstance().webServerPort,
+            ApmConfiguration.getInstance().webPath)).start();
+      }
       initWeb = true;
     }
   }

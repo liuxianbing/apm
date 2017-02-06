@@ -36,7 +36,7 @@ public class AutoEvictingCachingBinaryLocator extends AgentBuilder.PoolStrategy.
         cacheProviders.clear();
         TimedElementMatcherDecorator.logMetrics();
       }
-    }, 5, 1, TimeUnit.MINUTES);
+    }, 5, 5, TimeUnit.MINUTES);
   }
 
   @Override

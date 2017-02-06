@@ -64,10 +64,11 @@ public abstract class ApmMonitorByteBuddyTransformer {
             timed("classloader", "application", getClassLoaderMatcher()).matches(classLoader);
         System.out.println("a1:" + a1 + ",a2:" + a2 + ",a3:" + a3);
         boolean matches = a1 && a2 && a3;
-        System.out.println(classBeingRedefined + "classLoader:" + classLoader);
-        System.out.println(typeDescription + "typeDescription:" + matches);
-        if (!matches) {
-          onIgnored(typeDescription, classLoader);
+        // System.out.println(classBeingRedefined + "classLoader:" + classLoader);
+        System.out.println(typeDescription + "typeDescription:" + matches + ":" + getClass());
+        if (matches) {
+          System.out.println(typeDescription + "--typeDescription:" + getClass());
+          // onIgnored(typeDescription, classLoader);
         }
         return matches;
       }
