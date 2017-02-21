@@ -6,21 +6,18 @@ import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.utility.JavaModule;
 
 class ErrorLoggingListener extends AgentBuilder.Listener.Adapter {
-
   @Override
-  public void onError(String typeName, ClassLoader classLoader, JavaModule javaModule,
+  public void onError(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded,
       Throwable throwable) {
-    throwable.printStackTrace();
     System.out.println("ERROR on transformation " + typeName + throwable.getMessage());
   }
 
   @Override
   public void onTransformation(TypeDescription typeDescription, ClassLoader classLoader,
-      JavaModule module, DynamicType dynamicType) {
-    /* do nothing */
+      JavaModule module, boolean loaded, DynamicType dynamicType) {
     System.out.println("onTransformation:" + typeDescription.getName());
   }
 
   @Override
-  public void onComplete(String arg0, ClassLoader arg1, JavaModule arg2) {}
+  public void onComplete(String arg0, ClassLoader arg1, JavaModule arg2, boolean loaded) {}
 }

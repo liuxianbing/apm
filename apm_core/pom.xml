@@ -10,12 +10,12 @@
          <dependency>
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy-agent</artifactId>
-			<version>1.6.1</version>
+			<version>1.6.8</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
-			<version>1.6.1</version>
+			<version>1.6.8</version>
 		</dependency>
 		<dependency>
 			<groupId>io.prometheus</groupId>
@@ -32,6 +32,18 @@
 			<artifactId>simpleclient_hotspot</artifactId>
 			<version>${prometheus.version}</version>
 		</dependency>
+		 <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>4.1.6.RELEASE</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+  <groupId>javax.servlet</groupId>
+  <artifactId>servlet-api</artifactId>
+  <version>3.0-alpha-1</version>
+   <scope>provided</scope>
+</dependency>
 		<!-- 
 		<dependency>
 		  <groupId>com.lmax</groupId>
@@ -49,8 +61,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                     <encoding>UTF-8</encoding>
                     <showDeprecation>true</showDeprecation>
                 </configuration>

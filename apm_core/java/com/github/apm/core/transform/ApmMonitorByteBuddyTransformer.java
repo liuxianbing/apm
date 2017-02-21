@@ -153,7 +153,7 @@ public abstract class ApmMonitorByteBuddyTransformer {
 
       @Override
       public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder,
-          TypeDescription typeDescription, ClassLoader classLoader) {
+          TypeDescription typeDescription, ClassLoader classLoader, JavaModule module) {
         beforeTransformation(typeDescription, classLoader);
         return builder.visit(advice);
       }

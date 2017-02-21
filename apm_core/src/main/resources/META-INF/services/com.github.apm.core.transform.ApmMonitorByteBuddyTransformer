@@ -1,2 +1,0 @@
-com.github.apm.core.transform.impl.DefaultApmTransformer
-com.github.apm.core.transform.impl.SpringMvcReqTransformer

@@ -26,7 +26,7 @@ class FileExportingListener extends AgentBuilder.Listener.Adapter {
 
   @Override
   public void onTransformation(TypeDescription typeDescription, ClassLoader classLoader,
-      JavaModule module, DynamicType dynamicType) {
+      JavaModule module, boolean loaded, DynamicType dynamicType) {
     if (!exportClassesWithName.contains(typeDescription.getName())) {
       return;
     }

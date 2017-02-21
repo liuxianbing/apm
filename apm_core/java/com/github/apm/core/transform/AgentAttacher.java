@@ -202,22 +202,24 @@ public class AgentAttacher {
     return new AgentBuilder.Default(byteBuddy).with(binaryLocator)
         .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION).with(new AgentBuilder.Listener() {
           @Override
-          public void onComplete(String arg0, ClassLoader arg1, JavaModule arg2) {
+          public void onComplete(String arg0, ClassLoader arg1, JavaModule arg2, boolean loaded) {
             // System.out.println("onComplete:" + arg0);
           }
 
           @Override
-          public void onError(String arg0, ClassLoader arg1, JavaModule arg2, Throwable arg3) {
+          public void onError(String arg0, ClassLoader arg1, JavaModule arg2, boolean loaded,
+              Throwable arg3) {
             System.out.println(arg3.getMessage() + "onError:" + arg0);
             arg3.printStackTrace();
           }
 
           @Override
-          public void onIgnored(TypeDescription arg0, ClassLoader arg1, JavaModule arg2) {}
+          public void onIgnored(TypeDescription arg0, ClassLoader arg1, JavaModule arg2,
+              boolean loaded) {}
 
           @Override
           public void onTransformation(TypeDescription arg0, ClassLoader arg1, JavaModule arg2,
-              DynamicType arg3) {
+              boolean loaded, DynamicType arg3) {
             System.out.println(arg1 + "onTransformation" + arg0.getName());
             System.out.println(Thread.currentThread().getContextClassLoader() + "%%%");
           }
@@ -241,7 +243,7 @@ public class AgentAttacher {
         .transform(new AgentBuilder.Transformer() {
           @Override
           public Builder<?> transform(Builder<?> builder, TypeDescription typeDescription,
-              ClassLoader arg2) {
+              ClassLoader arg2, JavaModule module) {
             try {
               return builder.visit(Advice.to(LoggingAdvice.class).on(nameStartsWith("do")));
             } catch (Exception e) {
