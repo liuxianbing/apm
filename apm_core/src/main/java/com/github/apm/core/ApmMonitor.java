@@ -96,11 +96,11 @@ public class ApmMonitor {
 
     for (ApmServerSPI ass : ServiceLoader.load(ApmServerSPI.class,
         ApmMonitor.class.getClassLoader())) {
-      new Thread() {
-        public void run() {
-          ass.shutDown();
-        }
-      }.start();
+      // new Thread() {
+      // public void run() {
+      ass.shutDown();
+      // }
+      // }.start();
     }
   }
 

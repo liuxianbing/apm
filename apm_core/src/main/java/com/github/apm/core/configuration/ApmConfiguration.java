@@ -9,15 +9,8 @@ public class ApmConfiguration {
 
   private static ApmConfiguration apmConfig = null;
 
-  private static final Object monitor = new Object();
   static {
-    if (apmConfig == null) {
-      synchronized (monitor) {
-        if (apmConfig == null) {
-          apmConfig = new ApmConfiguration();
-        }
-      }
-    }
+    apmConfig = new ApmConfiguration();
   }
 
   public static ApmConfiguration getInstance() {
@@ -34,6 +27,8 @@ public class ApmConfiguration {
   public boolean runtimeAttach = true;// apm..instrument.runtimeAttach
   public String excludedInstrumenter = "";// apm.instrument.excludedInstrumenter
   public String exportGeneratedClassesWithName = "";// apm.instrument.exportGeneratedClassesWithName
+
+  public String classLoaderOfClass;
 
   public int webServerPort = -1;
   public String webPath;
@@ -53,6 +48,7 @@ public class ApmConfiguration {
     globalExclude += getByKey("apm.instrument.globalExclude");
     exclude = getByKey("apm.instrument.exclude");
     include = getByKey("apm.instrument.include");
+    classLoaderOfClass = getByKey("apm.classloader");
     excludedInstrumenter = getByKey("apm.instrument.excludedInstrumenter");
     exportGeneratedClassesWithName = getByKey("apm.instrument.exportGeneratedClassesWithName");
     debug = Boolean.parseBoolean(getByKey("apm.debug"));

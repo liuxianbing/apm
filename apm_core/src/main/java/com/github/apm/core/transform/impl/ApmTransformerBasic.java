@@ -72,16 +72,15 @@ public class ApmTransformerBasic extends ApmMonitorByteBuddyTransformer {
     }
   }
 
-  protected ElementMatcher.Junction<MethodDescription.InDefinedShape> generateMethodElementMatcher(
-      String key) {
+  protected ElementMatcher.Junction<MethodDescription> generateMethodElementMatcher(String key) {
     Map<String, String> map = PropertiesUtil.getFromKeyByPrefix(key, properties);
     if (map.size() > 0) {
-      ElementMatcher.Junction<MethodDescription.InDefinedShape> res = none();
+      ElementMatcher.Junction<MethodDescription> res = none();
       Iterator<Entry<String, String>> it = map.entrySet().iterator();
       while (it.hasNext()) {
         Entry<String, String> en = it.next();
         String[] tmp = en.getValue().split(",");
-        ElementMatcher.Junction<MethodDescription.InDefinedShape> matcher = none();
+        ElementMatcher.Junction<MethodDescription> matcher = none();
         if (en.getKey().endsWith("named")) {
           for (String cla : tmp)
             matcher = matcher.or(named(cla));

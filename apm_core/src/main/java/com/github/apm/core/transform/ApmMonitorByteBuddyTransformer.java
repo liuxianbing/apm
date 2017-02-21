@@ -19,6 +19,8 @@ import java.security.ProtectionDomain;
 import java.util.Collections;
 import java.util.List;
 
+import com.github.apm.core.configuration.ApmConfiguration;
+
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.asm.AsmVisitorWrapper;
@@ -32,6 +34,8 @@ public abstract class ApmMonitorByteBuddyTransformer {
 
   private static final ElementMatcher.Junction<ClassLoader> applicationClassLoaderMatcher =
       cached(new ApplicationClassLoaderMatcher());
+
+  public static ClassLoader appClassLoader = null;
 
   protected final String transformerName = getClass().getSimpleName();
 
@@ -51,24 +55,25 @@ public abstract class ApmMonitorByteBuddyTransformer {
       @Override
       public boolean matches(TypeDescription typeDescription, ClassLoader classLoader,
           JavaModule javaModule, Class<?> classBeingRedefined, ProtectionDomain protectionDomain) {
-        // final boolean matches =
-        // timed("type", transformerName, getTypeMatcher()).matches(typeDescription)
-        // && getRawMatcher().matches(typeDescription, classLoader, javaModule,
-        // classBeingRedefined, protectionDomain)
-        // && timed("classloader", "application", getClassLoaderMatcher())
-        // .matches(classLoader);
-        boolean a1 = timed("type", transformerName, getTypeMatcher()).matches(typeDescription);
-        boolean a2 = getRawMatcher().matches(typeDescription, classLoader, javaModule,
-            classBeingRedefined, protectionDomain);
-        boolean a3 =
-            timed("classloader", "application", getClassLoaderMatcher()).matches(classLoader);
-        System.out.println("a1:" + a1 + ",a2:" + a2 + ",a3:" + a3);
-        boolean matches = a1 && a2 && a3;
-        // System.out.println(classBeingRedefined + "classLoader:" + classLoader);
-        System.out.println(typeDescription + "typeDescription:" + matches + ":" + getClass());
+        boolean matches = timed("type", transformerName, getTypeMatcher()).matches(typeDescription)
+            && getRawMatcher().matches(typeDescription, classLoader, javaModule,
+                classBeingRedefined, protectionDomain)
+            && timed("classloader", "application", getClassLoaderMatcher()).matches(classLoader);
+        System.out
+            .println(typeDescription.getName() + "typeDescription:" + matches + ":" + getClass());
         if (matches) {
-          System.out.println(typeDescription + "--typeDescription:" + getClass());
-          // onIgnored(typeDescription, classLoader);
+          System.out.println(
+              typeDescription.getClass().getClassLoader() + "--typeDescription:" + classLoader);
+          if (appClassLoader == null) {
+            if (ApmConfiguration.getInstance().classLoaderOfClass.length() > 0) {
+              if (typeDescription.getName()
+                  .startsWith(ApmConfiguration.getInstance().classLoaderOfClass)) {
+                appClassLoader = classLoader;
+              }
+            } else {
+              appClassLoader = classLoader;
+            }
+          }
         }
         return matches;
       }

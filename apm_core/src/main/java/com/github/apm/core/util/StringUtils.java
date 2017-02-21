@@ -1,7 +1,9 @@
 package com.github.apm.core.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class StringUtils {
 
@@ -37,5 +39,22 @@ public class StringUtils {
       list.add(str.substring(start, i));
     }
     return list.toArray(new String[list.size()]);
+  }
+
+  public static void main(String[] args) {
+    System.out.println(getHttpParamters(""));
+  }
+
+  public static Map<String, String> getHttpParamters(String urls) {
+    int ind = urls.indexOf("?");
+    Map<String, String> map = new HashMap<>();
+    if (ind > 0) {
+      String[] param = urls.substring(ind + 1).split("&");
+      for (String s : param) {
+        String[] ak = s.split("=", 2);
+        map.put(ak[0], ak[1]);
+      }
+    }
+    return map;
   }
 }

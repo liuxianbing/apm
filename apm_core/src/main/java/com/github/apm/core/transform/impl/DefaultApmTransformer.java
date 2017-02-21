@@ -41,7 +41,6 @@ public class DefaultApmTransformer extends ApmTransformerBasic {
       @Advice.Enter long startTime,
       @Advice.Return(typing = Assigner.Typing.DYNAMIC) Object returnObj) {
     long spendTime = System.currentTimeMillis() - startTime;
-    System.out.println(classType + "-" + methodName + "***");
     PrometheusMetricsModule.calLate(spendTime, classType, methodName, signature);
     if (null != t) {
       PrometheusMetricsModule.errorCounter(classType, methodName, signature, t);
@@ -86,6 +85,13 @@ public class DefaultApmTransformer extends ApmTransformerBasic {
   public ElementMatcher.Junction<TypeDescription> getIncludeTypeMatcher() {
     ElementMatcher.Junction<TypeDescription> res = generatedTypeMatcher("include.type.matcher");
     return res == null ? super.getIncludeTypeMatcher() : res;
+  }
+
+  @Override
+  public ElementMatcher.Junction<MethodDescription> getExtraMethodElementMatcher() {
+    ElementMatcher.Junction<MethodDescription> res =
+        generateMethodElementMatcher("extra.method.matcher");
+    return res == null ? super.getExtraMethodElementMatcher() : res;
   }
 
   @Override

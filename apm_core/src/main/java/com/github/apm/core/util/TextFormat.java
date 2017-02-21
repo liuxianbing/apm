@@ -23,21 +23,23 @@ public class TextFormat {
      * specification.
      */
     for (Collector.MetricFamilySamples metricFamilySamples : Collections.list(mfs)) {
-      write(writer,
-          "# HELP " + metricFamilySamples.name + " " + escapeHelp(metricFamilySamples.help) + "\n");
-      write(writer,
-          "# TYPE " + metricFamilySamples.name + " " + typeString(metricFamilySamples.type) + "\n");
-      for (Collector.MetricFamilySamples.Sample sample : metricFamilySamples.samples) {
-        write(writer, sample.name);
-        if (sample.labelNames.size() > 0) {
-          write(writer, "{");
-          for (int i = 0; i < sample.labelNames.size(); ++i) {
-            write(writer, String.format("%s=\"%s\",", sample.labelNames.get(i),
-                escapeLabelValue(sample.labelValues.get(i))));
+      if (metricFamilySamples.samples.size() > 0) {
+        write(writer, "# HELP " + metricFamilySamples.name + " "
+            + escapeHelp(metricFamilySamples.help) + "\n");
+        write(writer, "# TYPE " + metricFamilySamples.name + " "
+            + typeString(metricFamilySamples.type) + "\n");
+        for (Collector.MetricFamilySamples.Sample sample : metricFamilySamples.samples) {
+          write(writer, sample.name);
+          if (sample.labelNames.size() > 0) {
+            write(writer, "{");
+            for (int i = 0; i < sample.labelNames.size(); ++i) {
+              write(writer, String.format("%s=\"%s\",", sample.labelNames.get(i),
+                  escapeLabelValue(sample.labelValues.get(i))));
+            }
+            write(writer, "}");
           }
-          write(writer, "}");
+          write(writer, " " + Collector.doubleToGoString(sample.value) + "\n");
         }
-        write(writer, " " + Collector.doubleToGoString(sample.value) + "\n");
       }
     }
   }
